@@ -1,4 +1,4 @@
-import * as React from "react";
+import React,{useState} from 'react';
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,6 +12,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { useAuth } from "../context/AuthContext";
 
 function Copyright(props) {
   return (
@@ -34,6 +35,9 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignUp() {
+  const {signup}=useAuth();
+  const [error,setError]=useState(null);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React,{useState} from 'react';
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -13,9 +13,10 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useAuth } from '../context/AuthContext';
+import { Alert } from '@mui/material';
+import { useNavigate } from 'react-router';
 
 function Copyright(props) {
-  const {login}=useAuth();
   return (
     <Typography
       variant="body2"
@@ -36,7 +37,12 @@ function Copyright(props) {
 const theme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event) => {
+  const {login}=useAuth();
+  const [error,setError]=useState(null);
+
+  let navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
@@ -44,6 +50,15 @@ export default function SignIn() {
       email: data.get("email"),
       password: data.get("password"),
     });
+    try {
+      await login(data.get("email"),data.get("password"));
+      navigate("/");
+    } catch (error) {
+      setError('Wrong credentials');
+      setTimeout(() => {
+        setError('')
+      }, 1500);      
+    }
   };
 
   return (
@@ -58,6 +73,7 @@ export default function SignIn() {
             alignItems: "center",
           }}
         >
+          {error&&<Alert severity="error">{error}</Alert>}
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -109,7 +125,7 @@ export default function SignIn() {
                 </Link>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/signup" variant="body2">
                   {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
