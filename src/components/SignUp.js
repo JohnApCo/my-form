@@ -13,6 +13,8 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from 'react-router';
+import { Alert } from '@mui/material';
 
 function Copyright(props) {
   return (
@@ -38,14 +40,34 @@ export default function SignUp() {
   const {signup}=useAuth();
   const [error,setError]=useState(null);
 
-  const handleSubmit = (event) => {
+  let navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
     console.log({
       email: data.get("email"),
       password: data.get("password"),
+      confirmPassword: data.get("confirmPassword"),
     });
+    if(data.get("password") !== data.get("confirmPassword")){
+      setError('Password do not match');
+      setTimeout(() => {
+        setError('');
+      }, 1500);
+    }else{
+      try {
+        await signup(data.get("email"),data.get("password"));
+        navigate("/");
+      } catch (error) {
+        console.log(error);
+        setError('Server Error');
+        setTimeout(() => {
+          setError('');
+        }, 1500);
+      }
+    }
   };
 
   return (
@@ -60,6 +82,7 @@ export default function SignUp() {
             alignItems: "center",
           }}
         >
+          {error&&<Alert severity="error">{error}</Alert>}
           <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
             <LockOutlinedIcon />
           </Avatar>
@@ -104,7 +127,7 @@ export default function SignUp() {
                   autoComplete="email"
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   required
                   fullWidth
@@ -113,6 +136,17 @@ export default function SignUp() {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="confirmPassword"
+                  type="password"
+                  id="confirmPassword"
+                  autoComplete="new-confirmPassword"
                 />
               </Grid>
               <Grid item xs={12}>
